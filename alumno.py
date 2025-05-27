@@ -46,25 +46,41 @@ class Alumno:
 import re 
 
 def leeAlumnos(ficAlumnos):
+    """
+    Lee el fichero de texto que se le pasa como único 
+    argumento y devuelve un diccionario con los datos de los alumnos.
     
+    >>> alumnos = leeAlumnos('alumnos.txt')
+    >>> for alumno in alumnos:
+    ...     print(alumnos[alumno])
+    ...
+    171     Blanca Agirrebarrenetse 9.5
+    23      Carles Balcells de Lara 4.9
+    68      David Garcia Fuster     7.0
+    """
+    alumn = {}
     expr_id = r'\s*(?P<id>\d+)\s+'
     expr_nom = r'(?P<nom>[\w\s]+?)\s+'
-    expr_notas = r'(?P<nota>[\d.\s]+)\s*'
-    expresion = re.compile(expr_id + expr_nom + expr_notas) # más manejable
-
-    
+    expr_notes = r'(?P<notes>[\d.\s]+)\s*'
+    expresion = re.compile(expr_id + expr_nom + expr_notes) # más manejable
     # expresion = re.compile(r'\s*\d+\s+[\w\s]+[\d.]+\s*') # r:regular. s:space. d: *:cero o mas veces. +una o mas veces
-    
     # expresion = re.compile(r'\s*(?P<id>\d+)\s+(?P<nom>[\w\s]+?)\s+(?P<nota>[\d.\s]+)\s*') # r:regular. s:space. d: *:cero o mas veces. +una o mas veces
-
-    
-
     # abrir un archivo con gestor de contenido
     with open(ficAlumnos, 'rt') as fpAlumnos: 
         for linea in fpAlumnos:
             match = expresion.search(linea)
             if match is not None: 
-                print(match['id'])
-                print(match['nom'])
-                print(match['nota'])
+                id = int(match['id'])
+                nom = match['nom']
+                notas = [float(nota) for nota in match['notes'].split()]
+                alumn[nom] = Alumno(nom, id, notas)
+                # print(match['id'])
+                # print(match['nom'])
+                # print(match['notes'])
+    return alumn
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE)
+    
 
