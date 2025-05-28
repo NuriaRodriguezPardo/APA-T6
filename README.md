@@ -1,6 +1,6 @@
 # Expresiones Regulares
 
-## Nom i cognoms
+## Nom i cognoms: Núria Rodríguez Pardo
 
 ## Tratamiento de ficheros de notas
 
@@ -240,11 +240,105 @@ Inserte a continuación una captura de pantalla que muestre el resultado de ejec
 fichero `alumno.py` con la opción *verbosa*, de manera que se muestre el
 resultado de la ejecución de los tests unitarios.
 
+![alt text](image.png)
+
 ##### Código desarrollado
 
 Inserte a continuación los códigos fuente desarrollados en esta tarea, usando los
 comandos necesarios para que se realice el realce sintáctico en Python del mismo (no
 vale insertar una imagen o una captura de pantalla, debe hacerse en formato *markdown*).
+
+###### `alumno.py`
+
+```py
+  import re 
+
+  def leeAlumnos(ficAlumnos):
+      """
+      Lee el fichero de texto que se le pasa como único 
+      argumento y devuelve un diccionario con los datos de los alumnos.
+      
+      >>> alumnos = leeAlumnos('alumnos.txt')
+      >>> for alumno in alumnos:
+      ...     print(alumnos[alumno])
+      ...
+      171     Blanca Agirrebarrenetse 9.5
+      23      Carles Balcells de Lara 4.9
+      68      David Garcia Fuster     7.0
+      """
+      alumn = {}
+      expr_id = r'\s*(?P<id>\d+)\s+'
+      expr_nom = r'(?P<nom>[\w\s]+?)\s+'
+      expr_notes = r'(?P<notes>[\d.\s]+)\s*'
+      expresion = re.compile(expr_id + expr_nom + expr_notes) # más manejable
+      # expresion = re.compile(r'\s*\d+\s+[\w\s]+[\d.]+\s*') # r:regular. s:space. d: *:cero o mas veces. +una o mas veces
+      # expresion = re.compile(r'\s*(?P<id>\d+)\s+(?P<nom>[\w\s]+?)\s+(?P<nota>[\d.\s]+)\s*') # r:regular. s:space. d: *:cero o mas veces. +una o mas veces
+      # abrir un archivo con gestor de contenido
+      with open(ficAlumnos, 'rt', encoding='utf-8') as fpAlumnos: 
+          for linea in fpAlumnos:
+              match = expresion.match(linea.strip())
+              # match = expresion.search(linea)
+              if match is not None: 
+                  # id = int(match.group(1))
+                  # nom = match.group(2).strip()
+                  # notes = list(map(float, re.split(r'\s+', match.group(3).strip())))
+                  id = int(match['id'])
+                  nom = match['nom']
+                  notes = [float(nota) for nota in match['notes'].split()]
+                  alumn[nom] = Alumno(nom, id, notes)
+      return alumn
+
+  resultado = leeAlumnos('alumnos.txt')
+  print(resultado)
+
+  if __name__ == "__main__":
+      import doctest
+      doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE)
+```
+###### `horas.py`
+```py
+  import re
+
+  def normalizaHoras(ficText, ficNorm):
+      estructura = [
+          # Formato dos puntos 
+          (re.compile(r'(\d{1,2}):(\d{1,2})'), lambda m: f'{int(m.group(1)):02}:{int(m.group(2)):02}'),
+
+          # Formato h y m 
+          (re.compile(r'(\d{1,2})h(\d{1,2})m'), lambda m: f'{int(m.group(1)):02}:{int(m.group(2)):02}'),
+
+        # Formato h 
+          (re.compile(r'(\d{1,2})(?:h| de la (mañana|tarde))'), 
+          lambda m: f'{(int(m.group(1)) + 12) if m.group(2) == "tarde" and int(m.group(1)) < 12 else (0 if m.group(1) == "12" and m.group(2) == "mañana" else int(m.group(1))):02}:00'),
+
+          # Formato y cuarto (opcional de la mañana/tarde)
+          (re.compile(r'(\d{1,2}) y cuarto(?: de la (mañana|tarde))?'), 
+          lambda m: f'{(int(m.group(1)) + 12) if m.group(2) == "tarde" and int(m.group(1)) < 12 else int(m.group(1)):02}:15'),
+
+          # Formato y media (opcional de la mañana/tarde)
+          (re.compile(r'(\d{1,2}) y media(?: de la (mañana|tarde))?'), 
+          lambda m: f'{(int(m.group(1)) + 12) if m.group(2) == "tarde" and int(m.group(1)) < 12 else int(m.group(1)):02}:30'),
+
+          # Formato menos cuarto (opcional de la mañana/tarde)
+          (re.compile(r'(\d{1,2}) menos cuarto(?: de la (mañana|tarde))?'), 
+          lambda m: f'{(int(m.group(1)) - 1 + 12) if m.group(2) == "tarde" and int(m.group(1)) < 12 else int(m.group(1)) - 1:02}:45'),
+
+          # Formato en punto (opcional de la mañana/tarde)
+          (re.compile(r'(\d{1,2}) en punto(?: de la (mañana|tarde))?'),
+          lambda m: f'{(int(m.group(1)) + 12) if m.group(2) == "tarde" and int(m.group(1)) < 12 else int(m.group(1)):02}:00'),
+
+          # 12 de la noche → 00:00
+          (re.compile(r'12 de la noche'), lambda m: '00:00'),
+      ]
+
+      with open(ficText, 'r') as input, open(ficNorm, 'w') as output:
+          for line in input: 
+              for x, reemplece in estructura:
+                  line = x.sub(reemplece, line)
+              output.write(line)
+
+  normalizaHoras('horas.txt', 'horasNorm.txt')  # Ejemplo de uso
+```
 
 ##### Subida del resultado al repositorio GitHub y *pull-request*
 

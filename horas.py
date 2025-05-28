@@ -8,8 +8,8 @@ def normalizaHoras(ficText, ficNorm):
         # Formato h y m 
         (re.compile(r'(\d{1,2})h(\d{1,2})m'), lambda m: f'{int(m.group(1)):02}:{int(m.group(2)):02}'),
 
-
-         (re.compile(r'(\d{1,2})(?:h| de la (mañana|tarde))'), 
+    	# Formato h 
+        (re.compile(r'(\d{1,2})(?:h| de la (mañana|tarde))'), 
          lambda m: f'{(int(m.group(1)) + 12) if m.group(2) == "tarde" and int(m.group(1)) < 12 else (0 if m.group(1) == "12" and m.group(2) == "mañana" else int(m.group(1))):02}:00'),
 
         # Formato y cuarto (opcional de la mañana/tarde)

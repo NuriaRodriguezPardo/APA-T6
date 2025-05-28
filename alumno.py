@@ -66,18 +66,22 @@ def leeAlumnos(ficAlumnos):
     # expresion = re.compile(r'\s*\d+\s+[\w\s]+[\d.]+\s*') # r:regular. s:space. d: *:cero o mas veces. +una o mas veces
     # expresion = re.compile(r'\s*(?P<id>\d+)\s+(?P<nom>[\w\s]+?)\s+(?P<nota>[\d.\s]+)\s*') # r:regular. s:space. d: *:cero o mas veces. +una o mas veces
     # abrir un archivo con gestor de contenido
-    with open(ficAlumnos, 'rt') as fpAlumnos: 
+    with open(ficAlumnos, 'rt', encoding='utf-8') as fpAlumnos: 
         for linea in fpAlumnos:
-            match = expresion.search(linea)
+            match = expresion.match(linea.strip())
+            # match = expresion.search(linea)
             if match is not None: 
+                # id = int(match.group(1))
+                # nom = match.group(2).strip()
+                # notes = list(map(float, re.split(r'\s+', match.group(3).strip())))
                 id = int(match['id'])
                 nom = match['nom']
-                notas = [float(nota) for nota in match['notes'].split()]
-                alumn[nom] = Alumno(nom, id, notas)
-                # print(match['id'])
-                # print(match['nom'])
-                # print(match['notes'])
+                notes = [float(nota) for nota in match['notes'].split()]
+                alumn[nom] = Alumno(nom, id, notes)
     return alumn
+
+resultado = leeAlumnos('alumnos.txt')
+print(resultado)
 
 if __name__ == "__main__":
     import doctest
